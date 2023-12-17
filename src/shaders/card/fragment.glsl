@@ -27,7 +27,7 @@ vec2 rotate2DStatic(vec2 _st, float _angle){
 
 vec2 tile(vec2 _st, float _zoom){
     _st *= _zoom;
-    float speed = 0.5;
+    float speed = 0.2;
     _st.y += step(1., mod(_st.x,2.0))  * -1.0 * (step(1.0,mod(u_time * speed,2.0)) * fract(u_time * speed));
     _st.y += step(1., mod(_st.x - 1.0, 2.0)) * (step(1.0,mod(u_time * speed,2.0)) * fract(u_time * speed));
     _st.x += step(1., mod(_st.y,2.0))  * -1.0 * (step(1.0,mod(u_time * speed - 1.0,2.0)) * fract(u_time * speed));;
@@ -68,8 +68,9 @@ void main(){
     vec3 color = vec3(0.0);
 
     st = tile(st,16.);
-
-    float speed = 0.;
+    vec2 desktopSt = vec2(v_uv.x, clamp((v_uv.y - 0.27)* 2.1, 0.0, 1.0));
+    float mouseFactor = 1.0 - (distance(u_mouse, desktopSt) * 0.75);
+    float speed = step(0.85, mouseFactor) * 3.0;
     vec2 st0 = rotate2D(st, 0.0, speed);
     vec2 st1 = rotate2DStatic(st,PI*0.5);
     vec2 st2 = rotate2D(st, PI / 3.0, speed);
@@ -87,8 +88,8 @@ void main(){
 
     color = vec3(1.0 - step(1., drawPolygon(vec2(0), 6, st1) * 6.0));
     
-    //stems
-    //outer
+    // stems
+    // outer
     color += vec3(box(st0, vec2(0.03,0.70), 0.01));
     color += vec3(box(st2, vec2(0.03,0.70), 0.01));
     color += vec3(box(st3, vec2(0.03,0.70), 0.01));
@@ -114,9 +115,8 @@ void main(){
     color += vec3(circle(st12, 0.003, vec2(0.5,0.75)));
     
     //color
-    color += vec3(0.921568627,1.000,1.0);
-    color *= 0.95;
-    color *= (1.0, 0.992, 0.956862745);
+    color += vec3(0.3,0.9,1.0) * clamp(mouseFactor, 0.5, 1.0);
+    color *= (1.0, 0.992, 0.956862745) * clamp(mouseFactor, 0.5, 1.0);
 
     gl_FragColor = vec4(color,1.0);
 }

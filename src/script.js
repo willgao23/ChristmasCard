@@ -39,9 +39,9 @@ scene.add(mesh)
 /**
  * Mouse
  */
-document.addEventListener('mousemove', (e) =>{
-    uniforms.u_mouse.value.x = e.clientX;
-    uniforms.u_mouse.value.y = e.clientY;
+canvas.addEventListener('mousemove', (e) =>{
+    uniforms.u_mouse.value.x = e.clientX / sizes.width;
+    uniforms.u_mouse.value.y = -1 * ((e.clientY / sizes.height) - 1);
 })
 
 /**
@@ -81,7 +81,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 10)
-camera.position.set(0, 0, 1);
+camera.position.set(0, 0, 1.275);
 scene.add(camera)
 
 /**
