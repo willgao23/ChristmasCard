@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import * as dat from 'lil-gui'
+import cardVertexShader from './shaders/card/vertex.glsl'
+import cardFragmentShader from './shaders/card/fragment.glsl'
 
 THREE.ColorManagement.enabled = false
 
@@ -16,14 +18,31 @@ const scene = new THREE.Scene()
  * Card
  */
 //Geometry
-const cardGeometry = new THREE.PlaneGeometry(8, 8, 256, 256);
+const cardGeometry = new THREE.PlaneGeometry(4, 4, 128, 128);
 
 // Material
-const cardMaterial = new THREE.MeshBasicMaterial();
+const uniforms = {
+    u_time: { value: 1.0 },
+    u_mouse: { value: new THREE.Vector2()},
+}
+
+const cardMaterial = new THREE.ShaderMaterial({
+    vertexShader: cardVertexShader,
+    fragmentShader: cardFragmentShader,
+    uniforms,
+});
 
 // Mesh
 const mesh = new THREE.Mesh(cardGeometry, cardMaterial)
 scene.add(mesh)
+
+/**
+ * Mouse
+ */
+document.addEventListener('mousemove', (e) =>{
+    uniforms.u_mouse.value.x = e.clientX;
+    uniforms.u_mouse.value.y = e.clientY;
+})
 
 /**
  * Sizes
@@ -48,7 +67,6 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-
 /**
  * Renderer
  */
@@ -62,8 +80,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(0, 0, 2);
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 10)
+camera.position.set(0, 0, 1);
 scene.add(camera)
 
 /**
@@ -74,6 +92,8 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+
+    uniforms.u_time.value = elapsedTime;
 
     // Render
     renderer.render(scene, camera)
