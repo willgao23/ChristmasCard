@@ -7,13 +7,14 @@ varying vec2 v_uv;
 uniform vec2 u_mouse;
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform bool u_animation;
 
 #define PI 3.14159265358979323846
 
-vec2 rotate2D(vec2 _st, float _angle, float _speed){
+vec2 rotate2D(vec2 _st, float _angle, float _speed, float _amplitude){
     _st -= 0.5;
-    _st =  mat2(cos(_angle + sin(u_time * _speed)),-sin(_angle + sin(u_time * _speed)),
-                sin(_angle + sin(u_time * _speed)),cos(_angle + sin(u_time * _speed))) * _st;
+    _st =  mat2(cos(_angle + (_amplitude * sin(u_time * _speed))),-sin(_angle + (_amplitude * sin(u_time * _speed))),
+                sin(_angle + (_amplitude * sin(u_time * _speed))),cos(_angle + (_amplitude * sin(u_time * _speed)))) * _st;
     _st += 0.5;
     return _st;
 }
@@ -72,30 +73,41 @@ void main(){
     vec2 mobileSt = vec2(clamp((v_uv.x - 0.4)* 4.7, 0.0, 1.0), clamp((v_uv.y - 0.25)* 2.1, 0.0, 1.0));
     float mouseFactor = 0.0;
     float speed = 0.0;
-    
-    if (u_resolution.x / u_resolution.y >= 1.0) {
-        st = tile(st,16.);
-        mouseFactor = 1.0 - (distance(u_mouse, desktopSt) * 0.75);
-        speed = step(0.85, mouseFactor) * 2.0;
+    float amplitude = 0.0;
+    if (u_animation) {
+        speed = 2.0;
+        amplitude = PI / 2.0;
+         if (u_resolution.x / u_resolution.y >= 1.0) {
+            st = tile(st,16.);
+        } else {
+            st = tile(st,32.);
+        }  
     } else {
-        st = tile(st,32.);
-        mouseFactor = 1.0 - (distance(u_mouse, mobileSt) * 0.75);
-        speed = step(0.85, mouseFactor) * 2.0;
-    }   
+        amplitude = 1.0;
+        if (u_resolution.x / u_resolution.y >= 1.0) {
+            st = tile(st,16.);
+            mouseFactor = 1.0 - (distance(u_mouse, desktopSt) * 0.75);
+            speed = step(0.85, mouseFactor) * 2.0;
+        } else {
+            st = tile(st,32.);
+            mouseFactor = 1.0 - (distance(u_mouse, mobileSt) * 0.75);
+            speed = step(0.85, mouseFactor) * 2.0;
+        }  
+    } 
 
-    vec2 st0 = rotate2D(st, 0.0, speed);
+    vec2 st0 = rotate2D(st, 0.0, speed, amplitude);
     vec2 st1 = rotate2DStatic(st,PI*0.5);
-    vec2 st2 = rotate2D(st, PI / 3.0, speed);
-    vec2 st3 = rotate2D(st,  -1.0 * PI / 3.0, speed);
-    vec2 st4 = rotate2D(st, 2.0 * PI / 3.0, speed);
-    vec2 st5 = rotate2D(st, -2.0 * PI / 3.0, speed);
-    vec2 st6 = rotate2D(st, PI, speed);
-    vec2 st7 = rotate2D(st, PI / 2.0, -1.0 * speed);
-    vec2 st8 = rotate2D(st, PI / 6.0, -1.0 * speed);
-    vec2 st9 = rotate2D(st, -1.0 * PI / 6.0, -1.0 * speed);
-    vec2 st10 = rotate2D(st, -1.0 * PI / 2.0, -1.0 * speed);
-    vec2 st11 = rotate2D(st, 5.0 * PI / 6.0, -1.0 * speed);
-    vec2 st12 = rotate2D(st, -5.0 * PI / 6.0, -1.0 * speed);
+    vec2 st2 = rotate2D(st, PI / 3.0, speed, amplitude);
+    vec2 st3 = rotate2D(st,  -1.0 * PI / 3.0, speed, amplitude);
+    vec2 st4 = rotate2D(st, 2.0 * PI / 3.0, speed, amplitude);
+    vec2 st5 = rotate2D(st, -2.0 * PI / 3.0, speed,amplitude);
+    vec2 st6 = rotate2D(st, PI, speed, amplitude);
+    vec2 st7 = rotate2D(st, PI / 2.0, -1.0 * speed, amplitude);
+    vec2 st8 = rotate2D(st, PI / 6.0, -1.0 * speed, amplitude);
+    vec2 st9 = rotate2D(st, -1.0 * PI / 6.0, -1.0 * speed, amplitude);
+    vec2 st10 = rotate2D(st, -1.0 * PI / 2.0, -1.0 * speed, amplitude);
+    vec2 st11 = rotate2D(st, 5.0 * PI / 6.0, -1.0 * speed, amplitude);
+    vec2 st12 = rotate2D(st, -5.0 * PI / 6.0, -1.0 * speed, amplitude);
     
 
     color = vec3(1.0 - step(1., drawPolygon(vec2(0), 6, st1) * 6.0));
@@ -127,9 +139,12 @@ void main(){
     color += vec3(circle(st12, 0.003, vec2(0.5,0.75)));
     
     //color
-    color += vec3(0.3,0.9,1.0) * clamp(mouseFactor, 0.5, 1.0);
-    color *= (1.0, 0.992, 0.956862745) * clamp(mouseFactor, 0.5, 1.0);
-    // color = vec3(mouseFactor);
-
+    if (u_animation) {
+        color += vec3(0.3,0.9,1.0);
+        color *= (1.0, 0.992, 0.956862745);
+    } else {
+        color += vec3(0.3,0.9,1.0) * clamp(mouseFactor, 0.5, 1.0);
+        color *= (1.0, 0.992, 0.956862745) * clamp(mouseFactor, 0.5, 1.0);
+    }
     gl_FragColor = vec4(color,1.0);
 }

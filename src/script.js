@@ -20,6 +20,11 @@ const scene = new THREE.Scene()
 const textureLoader = new THREE.TextureLoader()
 
 /**
+ * Raycaster
+ */
+const raycaster = new THREE.Raycaster()
+
+/**
  * Sizes
  */
 const sizes = {
@@ -56,6 +61,7 @@ const uniforms = {
     u_time: { value: 1.0 },
     u_resolution: { value: new THREE.Vector2(sizes.width, sizes.height)},
     u_mouse: { value: new THREE.Vector2()},
+    u_animation: { value: false }
 }
 
 const cardMaterial = new THREE.ShaderMaterial({
@@ -72,11 +78,14 @@ scene.add(mesh)
  * Fonts
  */
 const fontLoader = new FontLoader()
+let text1;
+let text2;
 
 fontLoader.load(
     '/fonts/Style Script_Regular.json',
     (font) => {
         const matcapTexture = textureLoader.load('/matcaps/silver.png')
+        matcapTexture.colorSpace = THREE.SRGBColorSpace
         const textMaterial = new THREE.MeshMatcapMaterial()
         textMaterial.matcap = matcapTexture
 
@@ -110,14 +119,11 @@ fontLoader.load(
                     bevelSegments: 5,
                 }
             )
-            const text1 = new THREE.Mesh(textGeometry1, textMaterial)
+            text1 = new THREE.Mesh(textGeometry1, textMaterial)
             text1.position.set(-0.73, 0.15, 0)
     
-            const text2 = new THREE.Mesh(textGeometry2, textMaterial)
+            text2 = new THREE.Mesh(textGeometry2, textMaterial)
             text2.position.set(-0.55, -0.35, 0)
-
-            scene.add(text1)
-            scene.add(text2)
         } else {
             const textGeometry1 = new TextGeometry(
                 'Happy',
@@ -149,32 +155,36 @@ fontLoader.load(
                 }
             )
 
-            const text1 = new THREE.Mesh(textGeometry1, textMaterial)
+            text1 = new THREE.Mesh(textGeometry1, textMaterial)
             text1.position.set(-0.22, 0.08, 0)
     
-            const text2 = new THREE.Mesh(textGeometry2, textMaterial)
+            text2 = new THREE.Mesh(textGeometry2, textMaterial)
             text2.position.set(-0.33, -0.15, 0)
-            
-            scene.add(text1)
-            scene.add(text2)
         }
-        
+        scene.add(text1)
+        scene.add(text2)   
     }
 )
 
 /**
  * Mouse
  */
+const mouse = new THREE.Vector2()
+
 canvas.addEventListener('mousemove', (e) =>{
     uniforms.u_mouse.value.x = e.clientX / sizes.width;
     uniforms.u_mouse.value.y = -1 * ((e.clientY / sizes.height) - 1);
+
+    mouse.x = e.clientX / sizes.width * 2 - 1
+    mouse.y = - (event.clientY / sizes.height) * 2 + 1
 })
 
 /**
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    antialias: true
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -184,19 +194,36 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 10)
-camera.position.set(0, 0, 1.275);
+camera.position.set(0, 0, 1.27);
 scene.add(camera)
 
 /**
  * Animate
  */
 const clock = new THREE.Clock()
-
+let textIsIntersected = false
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
     uniforms.u_time.value = elapsedTime;
+
+    raycaster.setFromCamera(mouse, camera)
+
+    if (text1 && text2) {
+        const text1Intersects = raycaster.intersectObject(text1)
+        const text2Intersects = raycaster.intersectObject(text2)
+
+        if(text1Intersects.length || text2Intersects.length) {
+            text1.position.z = 0.01
+            text2.position.z = 0.01
+            textIsIntersected = true
+        } else {
+            text1.position.z = 0
+            text2.position.z = 0
+            textIsIntersected = false
+        }
+    }
 
     // Render
     renderer.render(scene, camera)
@@ -206,3 +233,22 @@ const tick = () =>
 }
 
 tick()
+
+/**
+ * Audio
+ */
+const xmasChimes = new Audio('/audio/xmasBellSFX.mp3')
+xmasChimes.addEventListener('ended', () => {
+    xmasChimes.currentTime = 0
+    uniforms.u_animation.value = false
+})
+
+/**
+ * Click event
+ */
+canvas.addEventListener('click', () => {
+    if (textIsIntersected) {
+        uniforms.u_animation.value = true
+        xmasChimes.play()
+    }
+})
