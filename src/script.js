@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import * as dat from 'lil-gui'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import cardVertexShader from './shaders/card/vertex.glsl'
 import cardFragmentShader from './shaders/card/fragment.glsl'
 
@@ -13,6 +15,9 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+
+//Loader
+const textureLoader = new THREE.TextureLoader()
 
 /**
  * Sizes
@@ -62,6 +67,100 @@ const cardMaterial = new THREE.ShaderMaterial({
 // Mesh
 const mesh = new THREE.Mesh(cardGeometry, cardMaterial)
 scene.add(mesh)
+
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader()
+
+fontLoader.load(
+    '/fonts/Style Script_Regular.json',
+    (font) => {
+        const matcapTexture = textureLoader.load('/matcaps/silver.png')
+        const textMaterial = new THREE.MeshMatcapMaterial()
+        textMaterial.matcap = matcapTexture
+
+        if (sizes.width >= sizes.height) {
+            const textGeometry1 = new TextGeometry(
+                'Happy',
+                {
+                    font: font,
+                    size: 0.3,
+                    height: 0.03,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.05,
+                    bevelSize: 0.02,
+                    bevelOffset: 0,
+                    bevelSegments: 5,
+                }
+            )
+    
+            const textGeometry2 = new TextGeometry(
+                'Holidays!',
+                {
+                    font: font,
+                    size: 0.3,
+                    height: 0.03,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.05,
+                    bevelSize: 0.02,
+                    bevelOffset: 0,
+                    bevelSegments: 5,
+                }
+            )
+            const text1 = new THREE.Mesh(textGeometry1, textMaterial)
+            text1.position.set(-0.73, 0.15, 0)
+    
+            const text2 = new THREE.Mesh(textGeometry2, textMaterial)
+            text2.position.set(-0.55, -0.35, 0)
+
+            scene.add(text1)
+            scene.add(text2)
+        } else {
+            const textGeometry1 = new TextGeometry(
+                'Happy',
+                {
+                    font: font,
+                    size: 0.15,
+                    height: 0.015,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.025,
+                    bevelSize: 0.01,
+                    bevelOffset: 0,
+                    bevelSegments: 5,
+                }
+            )
+    
+            const textGeometry2 = new TextGeometry(
+                'Holidays!',
+                {
+                    font: font,
+                    size: 0.15,
+                    height: 0.015,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.025,
+                    bevelSize: 0.01,
+                    bevelOffset: 0,
+                    bevelSegments: 5,
+                }
+            )
+
+            const text1 = new THREE.Mesh(textGeometry1, textMaterial)
+            text1.position.set(-0.22, 0.08, 0)
+    
+            const text2 = new THREE.Mesh(textGeometry2, textMaterial)
+            text2.position.set(-0.33, -0.15, 0)
+            
+            scene.add(text1)
+            scene.add(text2)
+        }
+        
+    }
+)
 
 /**
  * Mouse
