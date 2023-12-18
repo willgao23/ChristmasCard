@@ -15,36 +15,6 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Card
- */
-//Geometry
-const cardGeometry = new THREE.PlaneGeometry(4, 4, 128, 128);
-
-// Material
-const uniforms = {
-    u_time: { value: 1.0 },
-    u_mouse: { value: new THREE.Vector2()},
-}
-
-const cardMaterial = new THREE.ShaderMaterial({
-    vertexShader: cardVertexShader,
-    fragmentShader: cardFragmentShader,
-    uniforms,
-});
-
-// Mesh
-const mesh = new THREE.Mesh(cardGeometry, cardMaterial)
-scene.add(mesh)
-
-/**
- * Mouse
- */
-canvas.addEventListener('mousemove', (e) =>{
-    uniforms.u_mouse.value.x = e.clientX / sizes.width;
-    uniforms.u_mouse.value.y = -1 * ((e.clientY / sizes.height) - 1);
-})
-
-/**
  * Sizes
  */
 const sizes = {
@@ -65,6 +35,40 @@ window.addEventListener('resize', () =>
     // Update renderer
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    uniforms.u_resolution.value.x = sizes.width;
+    uniforms.u_resolution.value.y = sizes.height;
+})
+
+/**
+ * Card
+ */
+//Geometry
+const cardGeometry = new THREE.PlaneGeometry(4, 4, 128, 128);
+
+// Material
+const uniforms = {
+    u_time: { value: 1.0 },
+    u_resolution: { value: new THREE.Vector2(sizes.width, sizes.height)},
+    u_mouse: { value: new THREE.Vector2()},
+}
+
+const cardMaterial = new THREE.ShaderMaterial({
+    vertexShader: cardVertexShader,
+    fragmentShader: cardFragmentShader,
+    uniforms,
+});
+
+// Mesh
+const mesh = new THREE.Mesh(cardGeometry, cardMaterial)
+scene.add(mesh)
+
+/**
+ * Mouse
+ */
+canvas.addEventListener('mousemove', (e) =>{
+    uniforms.u_mouse.value.x = e.clientX / sizes.width;
+    uniforms.u_mouse.value.y = -1 * ((e.clientY / sizes.height) - 1);
 })
 
 /**

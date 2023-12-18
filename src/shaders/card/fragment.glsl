@@ -5,6 +5,7 @@ precision mediump float;
 varying vec2 v_uv;
 
 uniform vec2 u_mouse;
+uniform vec2 u_resolution;
 uniform float u_time;
 
 #define PI 3.14159265358979323846
@@ -67,10 +68,21 @@ void main(){
     vec2 st = v_uv;
     vec3 color = vec3(0.0);
 
-    st = tile(st,16.);
     vec2 desktopSt = vec2(v_uv.x, clamp((v_uv.y - 0.27)* 2.1, 0.0, 1.0));
-    float mouseFactor = 1.0 - (distance(u_mouse, desktopSt) * 0.75);
-    float speed = step(0.85, mouseFactor) * 3.0;
+    vec2 mobileSt = vec2(clamp((v_uv.x - 0.4)* 4.7, 0.0, 1.0), clamp((v_uv.y - 0.25)* 2.1, 0.0, 1.0));
+    float mouseFactor = 0.0;
+    float speed = 0.0;
+    
+    if (u_resolution.x / u_resolution.y >= 1.0) {
+        st = tile(st,16.);
+        mouseFactor = 1.0 - (distance(u_mouse, desktopSt) * 0.75);
+        speed = step(0.85, mouseFactor) * 2.0;
+    } else {
+        st = tile(st,32.);
+        mouseFactor = 1.0 - (distance(u_mouse, mobileSt) * 0.75);
+        speed = step(0.85, mouseFactor) * 2.0;
+    }   
+
     vec2 st0 = rotate2D(st, 0.0, speed);
     vec2 st1 = rotate2DStatic(st,PI*0.5);
     vec2 st2 = rotate2D(st, PI / 3.0, speed);
@@ -117,6 +129,7 @@ void main(){
     //color
     color += vec3(0.3,0.9,1.0) * clamp(mouseFactor, 0.5, 1.0);
     color *= (1.0, 0.992, 0.956862745) * clamp(mouseFactor, 0.5, 1.0);
+    // color = vec3(mouseFactor);
 
     gl_FragColor = vec4(color,1.0);
 }
