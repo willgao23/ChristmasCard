@@ -175,6 +175,7 @@ canvas.addEventListener('mousemove', (e) => {
     mouse.y = - (e.clientY / sizes.height) * 2 + 1
 })
 canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault()
     uniforms.u_mouse.value.x = e.touches[0].clientX / sizes.width;
     uniforms.u_mouse.value.y = -1 * ((e.touches[0].clientY  / sizes.height) - 1);
 
