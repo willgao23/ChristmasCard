@@ -1,14 +1,10 @@
 import * as THREE from 'three'
-import * as dat from 'lil-gui'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import cardVertexShader from './shaders/card/vertex.glsl'
 import cardFragmentShader from './shaders/card/fragment.glsl'
 
 THREE.ColorManagement.enabled = false
-
-// Debug
-const gui = new dat.GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
