@@ -140,8 +140,8 @@ void main(){
     
     //color
     if (u_animation) {
-        color += vec3(0.3,0.9,1.0);
-        color *= (1.0, 0.992, 0.956862745);
+        color += vec3(0.3,0.9,1.0) * 0.95;
+        color *= (1.0, 0.992, 0.956862745) * 0.95;
     } else {
         color += vec3(0.3,0.9,1.0) * clamp(mouseFactor, 0.5, 1.0);
         color *= (1.0, 0.992, 0.956862745) * clamp(mouseFactor, 0.5, 1.0);
