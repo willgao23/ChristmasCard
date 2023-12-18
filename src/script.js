@@ -167,13 +167,16 @@ fontLoader.load(
  */
 const mouse = new THREE.Vector2()
 
-canvas.addEventListener('mousemove', (e) =>{
+const handleMove = (e) => {
     uniforms.u_mouse.value.x = e.clientX / sizes.width;
     uniforms.u_mouse.value.y = -1 * ((e.clientY / sizes.height) - 1);
 
     mouse.x = e.clientX / sizes.width * 2 - 1
     mouse.y = - (event.clientY / sizes.height) * 2 + 1
-})
+}
+
+canvas.addEventListener('mousemove', handleMove)
+canvas.addEventListener('touchmove', handleMove)
 
 /**
  * Renderer
